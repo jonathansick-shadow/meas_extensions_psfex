@@ -1,7 +1,7 @@
-# 
+#
 # LSST Data Management System
 # Copyright 2008-2015 AURA/LSST.
-# 
+#
 # This product includes software developed by the
 # LSST Project (http://www.lsst.org/).
 #
@@ -9,14 +9,14 @@
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
-# You should have received a copy of the LSST License Statement and 
-# the GNU General Public License along with this program.  If not, 
+#
+# You should have received a copy of the LSST License Statement and
+# the GNU General Public License along with this program.  If not,
 # see <https://www.lsstcorp.org/LegalNotices/>.
 #
 import os
@@ -40,6 +40,7 @@ import lsst.meas.algorithms.utils as maUtils
 import lsst.meas.algorithms.psfDeterminerRegistry as psfDeterminerRegistry
 import lsst.meas.extensions.psfex as psfex
 
+
 class PsfexPsfDeterminerConfig(pexConfig.Config):
     __nEigenComponents = pexConfig.Field(
         doc = "number of eigen components for PSF kernel creation",
@@ -56,14 +57,14 @@ class PsfexPsfDeterminerConfig(pexConfig.Config):
         doc = "size of cell used to determine PSF (pixels, column direction)",
         dtype = int,
         default = 256,
-#        minValue = 10,
+        #        minValue = 10,
         check = lambda x: x >= 10,
     )
     sizeCellY = pexConfig.Field(
         doc = "size of cell used to determine PSF (pixels, row direction)",
         dtype = int,
         default = sizeCellX.default,
-#        minValue = 10,
+        #        minValue = 10,
         check = lambda x: x >= 10,
     )
     __nStarPerCell = pexConfig.Field(
@@ -97,7 +98,7 @@ N.b. INTRP is used specially in PsfCandidateSet; it means "Contaminated by neigh
 """,
         dtype=str,
         default=["INTRP", "SAT"],
-        )
+    )
     __borderWidth = pexConfig.Field(
         doc = "Number of pixels to ignore around the edge of PSF candidate postage stamps",
         dtype = int,
@@ -144,6 +145,7 @@ N.b. INTRP is used specially in PsfCandidateSet; it means "Contaminated by neigh
         default = False,
     )
 
+
 class PsfexPsfDeterminer(object):
     ConfigClass = PsfexPsfDeterminerConfig
 
@@ -174,9 +176,9 @@ class PsfexPsfDeterminer(object):
         displayExposure = display and \
             lsstDebug.Info(__name__).displayExposure      # display the Exposure + spatialCells
         displayPsfCandidates = display and \
-            lsstDebug.Info(__name__).displayPsfCandidates # show the viable candidates
+            lsstDebug.Info(__name__).displayPsfCandidates  # show the viable candidates
         displayPsfComponents = display and \
-            lsstDebug.Info(__name__).displayPsfComponents # show the basis functions
+            lsstDebug.Info(__name__).displayPsfComponents  # show the basis functions
         showBadCandidates = display and \
             lsstDebug.Info(__name__).showBadCandidates    # Include bad candidates (meaningless, methinks)
         displayResiduals = display and \
@@ -184,9 +186,9 @@ class PsfexPsfDeterminer(object):
         displayPsfMosaic = display and \
             lsstDebug.Info(__name__).displayPsfMosaic     # show mosaic of reconstructed PSF(x,y)
         matchKernelAmplitudes = lsstDebug.Info(__name__).matchKernelAmplitudes
-                                                          # match Kernel amplitudes for spatial plots
+        # match Kernel amplitudes for spatial plots
         normalizeResiduals = lsstDebug.Info(__name__).normalizeResiduals
-                                                          # Normalise residuals by object amplitude
+        # Normalise residuals by object amplitude
 
         mi = exposure.getMaskedImage()
 
@@ -218,8 +220,8 @@ class PsfexPsfDeterminer(object):
             sizes[i] = rmsSize
 
         if self.config.kernelSize >= 15:
-            self.debugLog.debug(1, \
-                "WARNING: NOT scaling kernelSize by stellar quadrupole moment, but using absolute value")
+            self.debugLog.debug(1,
+                                "WARNING: NOT scaling kernelSize by stellar quadrupole moment, but using absolute value")
             actualKernelSize = int(self.config.kernelSize)
         else:
             actualKernelSize = 2 * int(self.config.kernelSize * np.sqrt(np.median(sizes)) + 0.5) + 1
@@ -235,9 +237,10 @@ class PsfexPsfDeterminer(object):
         pixKernelSize = actualKernelSize
         if self.config.samplingSize > 0:
             pixKernelSize = int(actualKernelSize*self.config.samplingSize)
-            if pixKernelSize % 2 == 0: pixKernelSize += 1
+            if pixKernelSize % 2 == 0:
+                pixKernelSize += 1
         self.debugLog.debug(3, "Psfex Kernel size=%.2f, Image Kernel Size=%.2f" %
-                            (actualKernelSize,pixKernelSize))
+                            (actualKernelSize, pixKernelSize))
         psfCandidateList[0].setHeight(pixKernelSize)
         psfCandidateList[0].setWidth(pixKernelSize)
 
@@ -256,9 +259,9 @@ class PsfexPsfDeterminer(object):
 
         prefs.use()
         principalComponentExclusionFlag = bool(bool(psfex.Context.REMOVEHIDDEN)
-                if False else psfex.Context.KEEPHIDDEN)
+                                               if False else psfex.Context.KEEPHIDDEN)
         context = psfex.Context(prefs.getContextName(), prefs.getContextGroup(),
-                                prefs.getGroupDeg(),principalComponentExclusionFlag)
+                                prefs.getGroupDeg(), principalComponentExclusionFlag)
         set = psfex.Set(context)
         set.setVigSize(pixKernelSize, pixKernelSize)
         set.setFwhm(2*np.sqrt(2*np.log(2))*np.median(sizes))
@@ -287,7 +290,7 @@ class PsfexPsfDeterminer(object):
             else:
                 try:
                     contextvalp.append(np.array([psfCandidateList[_].getSource().get(key)
-                                                    for _ in range(nCand)]))
+                                                 for _ in range(nCand)]))
                 except KeyError:
                     raise RuntimeError("*Error*: %s parameter not found" % (key))
                 set.setContextname(i, key)
@@ -333,7 +336,8 @@ class PsfexPsfDeterminer(object):
                     sample.setObjindex(i)
 
                     imArray = pstamp.getImage().getArray()
-                    imArray[np.where(np.bitwise_and(pstamp.getMask().getArray(), badBits))] = -2*psfex.cvar.BIG
+                    imArray[np.where(np.bitwise_and(pstamp.getMask().getArray(), badBits))
+                            ] = -2*psfex.cvar.BIG
                     sample.setVig(imArray)
 
                     sample.setNorm(flux)
@@ -346,12 +350,13 @@ class PsfexPsfDeterminer(object):
                     for j in range(set.getNcontext()):
                         sample.setContext(j, float(contextvalp[j][i]))
                 except Exception as e:
-                    self.debugLog.debug(2, "Exception when processing sample at (%f,%f): %s" % (xc,yc,e))
+                    self.debugLog.debug(2, "Exception when processing sample at (%f,%f): %s" % (xc, yc, e))
                     continue
                 else:
                     set.finiSample(sample)
 
-                xpos.append(xc); ypos.append(yc) # for QA
+                xpos.append(xc)
+                ypos.append(yc)  # for QA
 
             if displayExposure:
                 ds9.dot("o", xc, yc, ctype=ds9.CYAN, size=4, frame=frame)
@@ -399,8 +404,8 @@ class PsfexPsfDeterminer(object):
                 if i in good_indices:
                     source.set(flagKey, True)
 
-
-        xpos = np.array(xpos); ypos = np.array(ypos)
+        xpos = np.array(xpos)
+        ypos = np.array(ypos)
         numGoodStars = len(good_indices)
         avgX, avgY = np.mean(xpos), np.mean(ypos)
 

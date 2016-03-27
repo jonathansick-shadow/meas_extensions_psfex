@@ -7,6 +7,7 @@ import lsst.afw.image as afwImage
 import lsst.afw.display.ds9 as ds9
 import lsst.meas.extensions.psfex as psfex
 
+
 def readSExtractor(filename):
     with pyfits.open(filename) as pf:
         for hdu in pf:
@@ -36,9 +37,11 @@ def readSExtractor(filename):
                     msk[sat] = afwImage.MaskU.getPlaneBitMask("SAT")
                     ds9.mtv(mi, title=row)
                     raw_input("Next ")
-            
+
+
 def readPrefs(filename, md=None):
     return psfex.Prefs(filename, md)
+
 
 def foo():
     pp = psfex.Psf(psfex.Context(["A", "B"], [1, 1], [2], 1, True), [1], 0.1, [1], 1)
